@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   // 2. Google Search Console Verification
   // Replace 'YOUR_CODE_HERE' with the code Google gives you
   verification: {
-    google: "YOUR_CODE_HERE", 
+    google: "f4vo3PFTggmIyMEAujQL3vuU6Fk1OVY9ELmhs7Guqis", 
   },
 };
 
