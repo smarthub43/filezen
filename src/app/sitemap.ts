@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://filezen-tool.vercel.app/'
+  const baseUrl = 'https://filezen-tool.vercel.app'
 
-  // All your conversion combinations
+  // 1. YOUR ORIGINAL IMAGE CONVERTER LOGIC (KEEPING THIS)
   const formats = ['png', 'jpg', 'webp', 'bmp']
   const conversions = []
 
@@ -22,13 +22,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
+  // 2. NEW PDF GROWTH PATHS (ADDING THESE)
+  const pdfKeywords = [
+    'compress-pdf', 
+    'pdf-reducer', 
+    'pdf-size-optimizer', 
+    'shrink-pdf', 
+    'optimize-pdf'
+  ]
+
+  const pdfUrls = pdfKeywords.map((slug) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9, // Higher priority for high-CPC business terms
+  }))
+
+  // 3. COMBINING EVERYTHING INTO THE FINAL RETURN
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'yearly' as const,
+      changeFrequency: 'daily' as const,
       priority: 1,
     },
+    ...pdfUrls,        // Added PDF tools
+    ...conversionUrls, // Kept all image tools
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
@@ -41,6 +60,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
-    ...conversionUrls,
+    {
+      url: `${baseUrl}/privacy`, // Critical for AdSense
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/terms`, // Critical for AdSense
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
   ]
 }

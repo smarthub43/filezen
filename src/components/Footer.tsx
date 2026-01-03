@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Heart } from 'lucide-react';
+import { ShieldCheck, Heart, FileDigit } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -21,52 +21,51 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Column 2: Popular Conversions (The "Spiderweb" Part 1) */}
+        {/* Column 2: Popular Conversions */}
         <div className="space-y-4">
           <h4 className="text-white font-bold uppercase tracking-wider text-xs">Popular</h4>
           <ul className="space-y-2 text-xs font-medium">
             <li><Link href="/convert/png-to-jpg" className="hover:text-white transition-colors">PNG to JPG</Link></li>
             <li><Link href="/convert/png-to-webp" className="hover:text-white transition-colors">PNG to WebP</Link></li>
-            <li><Link href="/convert/png-to-bmp" className="hover:text-white transition-colors">PNG to BMP</Link></li>
-            <li className="pt-2"><Link href="/convert/jpg-to-png" className="hover:text-white transition-colors">JPG to PNG</Link></li>
+            <li><Link href="/convert/jpg-to-png" className="hover:text-white transition-colors">JPG to PNG</Link></li>
             <li><Link href="/convert/jpg-to-webp" className="hover:text-white transition-colors">JPG to WebP</Link></li>
-            <li><Link href="/convert/jpg-to-bmp" className="hover:text-white transition-colors">JPG to BMP</Link></li>
           </ul>
         </div>
 
-        {/* Column 3: More Conversions (The "Spiderweb" Part 2) */}
+        {/* Column 3: PDF TOOLS (ADD THIS HERE) */}
         <div className="space-y-4">
-          <h4 className="text-white font-bold uppercase tracking-wider text-xs">More Tools</h4>
+          <h4 className="text-white font-bold uppercase tracking-wider text-xs">PDF Tools</h4>
           <ul className="space-y-2 text-xs font-medium">
-            <li><Link href="/convert/webp-to-jpg" className="hover:text-white transition-colors">WebP to JPG</Link></li>
-            <li><Link href="/convert/webp-to-png" className="hover:text-white transition-colors">WebP to PNG</Link></li>
-            <li><Link href="/convert/webp-to-bmp" className="hover:text-white transition-colors">WebP to BMP</Link></li>
-            <li className="pt-2"><Link href="/convert/bmp-to-jpg" className="hover:text-white transition-colors">BMP to JPG</Link></li>
-            <li><Link href="/convert/bmp-to-png" className="hover:text-white transition-colors">BMP to PNG</Link></li>
-            <li><Link href="/convert/bmp-to-webp" className="hover:text-white transition-colors">BMP to WebP</Link></li>
-          </ul>
-        </div>
-
-        {/* Column 4: Company */}
-        <div className="space-y-4">
-          <h4 className="text-white font-bold uppercase tracking-wider text-xs">Company</h4>
-          <ul className="space-y-2 text-xs">
-            <li><Link href="/#how-it-works" className="hover:text-white transition-colors">How it Works</Link></li>
-            <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li>
-                <Link href="/donate" className="hover:text-white transition-colors flex items-center gap-2">
-                    Donate <Heart size={10} className="text-pink-500 fill-pink-500" />
-                </Link>
+              {/* This link opens your separate PDF Tool */}
+              <Link href="/compress-pdf" className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-2">
+                <FileDigit size={12} />
+                PDF Compressor
+              </Link>
             </li>
+            <li className="text-slate-600 italic">PDF to JPG (Soon)</li>
           </ul>
         </div>
 
-        {/* Column 5: Legal */}
+        {/* Column 4: Resources */}
         <div className="space-y-4">
-          <h4 className="text-white font-bold uppercase tracking-wider text-xs">Legal</h4>
+          <h4 className="text-white font-bold uppercase tracking-wider text-xs">Resources</h4>
           <ul className="space-y-2 text-xs">
+            <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+          </ul>
+        </div>
+
+        {/* Column 5: Support */}
+        <div className="space-y-4">
+          <h4 className="text-white font-bold uppercase tracking-wider text-xs">Support</h4>
+          <ul className="space-y-2 text-xs">
+            <li>
+              <Link href="/donate" className="hover:text-white transition-colors flex items-center gap-2">
+                Donate <Heart size={10} className="text-pink-500 fill-pink-500" />
+              </Link>
+            </li>
             <li><Link href="/cookies" className="hover:text-white transition-colors">Cookie Policy</Link></li>
           </ul>
         </div>
