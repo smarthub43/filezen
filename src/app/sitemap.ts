@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://filezen-tool.vercel.app' // Replace with your actual URL
+  const baseUrl = 'https://filezen-tool.vercel.app/'
 
   // All your conversion combinations
   const formats = ['png', 'jpg', 'webp', 'bmp']
