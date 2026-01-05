@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Heart, FileDigit } from 'lucide-react';
+// Added 'Layers' to the imports for the Merge icon
+import { ShieldCheck, Heart, FileDigit, Layers } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -32,17 +33,26 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Column 3: PDF TOOLS (ADD THIS HERE) */}
+        {/* Column 3: PDF TOOLS */}
         <div className="space-y-4">
           <h4 className="text-white font-bold uppercase tracking-wider text-xs">PDF Tools</h4>
           <ul className="space-y-2 text-xs font-medium">
             <li>
-              {/* This link opens your separate PDF Tool */}
+              {/* PDF Compressor (Red) */}
               <Link href="/compress-pdf" className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-2">
                 <FileDigit size={12} />
                 PDF Compressor
               </Link>
             </li>
+            
+            {/* NEW: Merge PDF (Purple) */}
+            <li>
+              <Link href="/merge-pdf" className="text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-2">
+                <Layers size={12} />
+                Merge PDF
+              </Link>
+            </li>
+
             <li className="text-slate-600 italic">PDF to JPG (Soon)</li>
           </ul>
         </div>

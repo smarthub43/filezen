@@ -17,9 +17,7 @@ export const metadata: Metadata = {
   description: "Convert images securely in your browser. 100% Offline, no server uploads. Safe and fast conversion for PNG, JPG, WebP, and BMP.",
   keywords: ["image converter", "png to jpg", "webp converter", "offline converter", "privacy tool"],
   
-  // 2. Google Search Console Verification
-  // Replace 'YOUR_CODE_HERE' with the code Google gives you
-  verification: {
+    verification: {
     google: "f4vo3PFTggmIyMEAujQL3vuU6Fk1OVY9ELmhs7Guqis", 
   },
 };

@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://filezen-tool.vercel.app'
 
-  // 1. YOUR ORIGINAL IMAGE CONVERTER LOGIC (KEEPING THIS)
+  // 1. ORIGINAL IMAGE CONVERTER LOGIC (UNCHANGED)
   const formats = ['png', 'jpg', 'webp', 'bmp']
   const conversions = []
 
@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  // 2. NEW PDF GROWTH PATHS (ADDING THESE)
+  // 2. PDF COMPRESSOR KEYWORDS (UNCHANGED)
   const pdfKeywords = [
     'compress-pdf', 
     'pdf-reducer', 
@@ -35,10 +35,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
-    priority: 0.9, // Higher priority for high-CPC business terms
+    priority: 0.9,
   }))
 
-  // 3. COMBINING EVERYTHING INTO THE FINAL RETURN
+  // 3. FINAL RETURN (With New MERGE Tool Added)
   return [
     {
       url: baseUrl,
@@ -46,8 +46,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily' as const,
       priority: 1,
     },
-    ...pdfUrls,        // Added PDF tools
-    ...conversionUrls, // Kept all image tools
+    // NEW: Merge PDF Tool (High Value)
+    {
+      url: `${baseUrl}/merge-pdf`, 
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9, 
+    },
+    ...pdfUrls,        // PDF Compressor paths
+    ...conversionUrls, // Image Converter paths
     {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
@@ -61,13 +68,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/privacy`, // Critical for AdSense
+      url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/terms`, // Critical for AdSense
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/cookies`, // Added cookies for safety
       lastModified: new Date(),
       changeFrequency: 'yearly' as const,
       priority: 0.3,
