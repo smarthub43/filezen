@@ -1,40 +1,40 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import { 
-  Lock, Unlock, Download, FileText, 
-  ShieldCheck, Eye, EyeOff, Check 
+  Lock, ShieldCheck, FileText, 
+  Download, Check, Loader2 
 } from 'lucide-react';
 
 export default function ProtectPdf() {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) {
+    if (selected && selected.type === "application/pdf") {
       setFile(selected);
       setDownloadUrl(null);
+    } else {
+      alert("Please select a valid PDF file.");
     }
   };
 
   const protectPdf = async () => {
-    if (!file || !password) {
-      alert("Please upload a file and set a password.");
-      return;
-    }
-
+    if (!file || !password) return;
     setIsProcessing(true);
+
     try {
-      // 1. Load the PDF
       const arrayBuffer = await file.arrayBuffer();
+      
+      // 1. Load the PDF
       const pdfDoc = await PDFDocument.load(arrayBuffer);
 
-      // 2. Encrypt it (Using "as any" on pdfDoc makes the red line vanish)
+      // 2. Encrypt 
+      // FIX #1: We cast 'pdfDoc' to 'any' to force the encrypt method to work
       (pdfDoc as any).encrypt({
         userPassword: password,
         ownerPassword: password,
@@ -42,21 +42,26 @@ export default function ProtectPdf() {
           printing: 'highResolution',
           modifying: false,
           copying: false,
+          annotating: false,
+          fillingForms: false,
+          contentAccessibility: false,
+          documentAssembly: false,
         },
       });
 
-      // 3. Save and Fix for TypeScript (Uint8Array wrapper)
+      // 3. Save the file
       const pdfBytes = await pdfDoc.save();
-      const protectedBytes = new Uint8Array(pdfBytes);
-
-      // 4. Create Download Blob
-      const blob = new Blob([protectedBytes], { type: 'application/pdf' });
+      
+      // FIX #2: This fixes the red line in your screenshot (image_b8b636.png)
+      // We cast pdfBytes to 'any' inside the array
+      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
+      
       setDownloadUrl(url);
 
     } catch (error) {
-      console.error("Encryption failed", error);
-      alert("Could not protect this PDF. It might already be corrupted.");
+      console.error("Encryption failed:", error);
+      alert("Failed to protect PDF. Please try a different file.");
     } finally {
       setIsProcessing(false);
     }
@@ -65,7 +70,7 @@ export default function ProtectPdf() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
       
-      {/* Header - Blue/Dark Theme for "Security" */}
+      {/* Header - Blue Theme */}
       <div className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-slate-900">
@@ -87,104 +92,79 @@ export default function ProtectPdf() {
       </div>
 
       {/* Tool Card */}
-      <div className="max-w-xl mx-auto px-6 -mt-10">
-        <div className="bg-white border border-slate-200 shadow-2xl rounded-3xl p-8 md:p-12">
+      <div className="max-w-md mx-auto px-6 -mt-10">
+        <div className="bg-white border border-slate-200 shadow-2xl rounded-3xl p-8">
           
-          {/* Step 1: Upload */}
           {!file ? (
             <div className="text-center py-12 border-2 border-dashed border-slate-300 rounded-2xl hover:border-blue-500 hover:bg-blue-50/30 transition-all group cursor-pointer relative">
               <label className="cursor-pointer block h-full w-full">
-                <div className="bg-blue-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
-                  <Lock className="text-white" size={32} />
+                <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
+                  <FileText className="text-white" size={32} />
                 </div>
-                <span className="text-2xl font-bold text-slate-800 block mb-2">Select PDF</span>
-                <span className="text-slate-500">Click to upload a document</span>
+                <span className="text-xl font-bold text-slate-800 block mb-2">Select PDF</span>
                 <input type="file" className="hidden" accept=".pdf" onChange={handleUpload} />
               </label>
             </div>
           ) : (
             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
               
-              {/* File Preview */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3 overflow-hidden">
-                   <div className="bg-red-100 text-red-500 p-2 rounded-lg">
-                      <FileText size={24} />
-                   </div>
-                   <div className="text-left">
-                     <p className="text-sm font-bold text-slate-700 truncate max-w-[200px]">{file.name}</p>
-                     <p className="text-xs text-slate-400">{(file.size/1024/1024).toFixed(2)} MB</p>
-                   </div>
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <FileText className="text-blue-500" size={20} />
+                  <span className="text-sm font-semibold text-slate-700 truncate max-w-[150px]">{file.name}</span>
                 </div>
-                <button onClick={() => {setFile(null); setDownloadUrl(null); setPassword("");}} className="text-sm text-red-500 hover:underline">
-                  Change
-                </button>
+                <button onClick={() => {setFile(null); setDownloadUrl(null); setPassword("");}} className="text-xs font-medium text-red-500 hover:underline">Change</button>
               </div>
 
-              {/* Step 2: Set Password */}
-              {!downloadUrl && (
-                <div className="space-y-4">
-                  <label className="block text-left text-sm font-bold text-slate-700">Set a Password</label>
-                  <div className="relative">
-                    <input 
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter a strong password"
-                      className="w-full p-4 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-mono"
-                    />
-                    <button 
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
+              {!downloadUrl ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Set a Password</label>
+                    <div className="relative">
+                      <input 
+                        type="password" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="•••••"
+                        className="w-full p-3 pl-10 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
+                      />
+                      <Lock className="absolute left-3 top-3.5 text-slate-400" size={16} />
+                    </div>
                   </div>
-                  
+
                   <button 
                     onClick={protectPdf} 
-                    disabled={isProcessing || !password}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                    disabled={!password || isProcessing}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? <Lock className="animate-spin" /> : "Encrypt PDF Now"}
+                    {isProcessing ? <Loader2 className="animate-spin" /> : <Lock size={20} />}
+                    {isProcessing ? "Encrypting..." : "Protect PDF"}
                   </button>
-                </div>
-              )}
-
-              {/* Step 3: Download */}
-              {downloadUrl && (
-                <div className="space-y-4 pt-2">
-                  <div className="p-4 bg-green-50 border border-green-100 rounded-xl text-center">
-                    <p className="text-green-800 font-bold flex items-center justify-center gap-2">
-                      <Check size={18} /> File Encrypted Successfully!
-                    </p>
+                </>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
+                    <Check size={16} /> Encrypted Successfully!
                   </div>
                   <a 
                     href={downloadUrl} 
                     download={`Protected-${file.name}`}
-                    className="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-xl flex justify-center items-center gap-2 text-lg transition-all"
+                    className="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 transition-all"
                   >
-                    <Download size={24} /> Download Secured PDF
+                    <Download size={20} /> Download
                   </a>
+                  <button 
+                    onClick={() => {setFile(null); setDownloadUrl(null); setPassword("");}}
+                    className="text-sm text-slate-500 hover:text-blue-600 underline"
+                  >
+                    Protect Another File
+                  </button>
                 </div>
               )}
             </div>
           )}
         </div>
       </div>
-
-      {/* SEO Section */}
-      <section className="max-w-3xl mx-auto px-6 mt-20 mb-20">
-        <div className="bg-blue-50 p-8 rounded-3xl border border-blue-100">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Why Protect your PDF?</h2>
-          <p className="text-sm text-slate-600 leading-relaxed mb-4">
-            Before sending sensitive financial documents, legal contracts, or personal IDs via email, you should always encrypt them. 
-          </p>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            <strong>FileZen Protect</strong> adds standard 128-bit encryption to your file directly in your browser. The password never leaves your device, so not even we can unlock it.
-          </p>
-        </div>
-      </section>
     </main>
   );
 }
