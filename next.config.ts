@@ -1,19 +1,17 @@
 import type { NextConfig } from "next";
 
-// FIX: Changing type to 'any' stops the red line complaints
 const nextConfig: any = {
-  // 1. Tell Next.js to not bundle these heavy packages
-  serverExternalPackages: ["pdfjs-dist"],
-
-  // 2. NUCLEAR OPTION: Disable checks to save memory during build
+  // We don't need externalPackages anymore because we aren't using the npm package!
+  
+  // Keep these just to be safe and save memory
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-
-  // 3. Keep the Webpack fix for canvas
+  
+  // Basic webpack config just in case
   webpack: (config: any) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;

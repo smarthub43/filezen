@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Script from 'next/script';
 import { 
   FileImage, Upload, Download, Image as ImageIcon, 
   Check, Settings, Loader2 
 } from 'lucide-react';
-
-// NOTE: We do NOT import pdfjs-dist here anymore.
-// This prevents the "WorkerError" crash during build.
 
 export default function PdfToImage() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,23 +13,7 @@ export default function PdfToImage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedFormat, setSelectedFormat] = useState('image/jpeg');
-
-  // Setup the worker dynamically when the page mounts
-  useEffect(() => {
-    const initWorker = async () => {
-      try {
-        // Lazy load the library
-        const pdfJS = (await import('pdfjs-dist')) as any;
-        // Set worker
-        if (!pdfJS.GlobalWorkerOptions.workerSrc) {
-            pdfJS.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfJS.version}/build/pdf.worker.min.js`;
-        }
-      } catch (error) {
-        console.error("Worker init failed", error);
-      }
-    };
-    initWorker();
-  }, []);
+  const [isLibraryLoaded, setIsLibraryLoaded] = useState(false);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -43,13 +25,17 @@ export default function PdfToImage() {
   };
 
   const convertToImages = async () => {
-    if (!file) return;
+    if (!file || !isLibraryLoaded) {
+        if(!isLibraryLoaded) alert("Please wait a moment for the converter to load...");
+        return;
+    }
+    
     setIsProcessing(true);
     setImages([]);
 
     try {
-      // 1. Lazy load the library inside the action
-      const pdfJS = (await import('pdfjs-dist')) as any;
+      // Access the library from the global window object (loaded via CDN)
+      const pdfJS = (window as any).pdfjsLib;
       
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfJS.getDocument(arrayBuffer).promise;
@@ -58,8 +44,7 @@ export default function PdfToImage() {
 
       for (let i = 1; i <= totalPages; i++) {
         const page = await pdf.getPage(i);
-        // High quality scale
-        const viewport = page.getViewport({ scale: 2.0 });
+        const viewport = page.getViewport({ scale: 2.0 }); // High quality
         
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -74,7 +59,6 @@ export default function PdfToImage() {
 
           await page.render(renderContext).promise;
           
-          // DYNAMIC: Use the user's selected format
           const imgUrl = canvas.toDataURL(selectedFormat, 0.9); 
           const ext = selectedFormat.split('/')[1].replace('jpeg', 'jpg');
           
@@ -97,7 +81,18 @@ export default function PdfToImage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
       
-      {/* Header - Indigo Theme */}
+      {/* THIS IS THE MAGIC FIX: Load library from CDN instead of building it */}
+      <Script 
+        src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" 
+        strategy="lazyOnload"
+        onLoad={() => {
+            console.log("PDF Library Loaded");
+            (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+            setIsLibraryLoaded(true);
+        }}
+      />
+
+      {/* Header */}
       <div className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-slate-900">
@@ -140,7 +135,6 @@ export default function PdfToImage() {
           {file && images.length === 0 && (
             <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300 text-center">
               
-              {/* File Info */}
               <div className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200 inline-block mx-auto">
                  <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg">
                     <FileImage size={24} />
@@ -152,7 +146,6 @@ export default function PdfToImage() {
                  <button onClick={() => setFile(null)} className="text-slate-400 hover:text-red-500 ml-4">Change</button>
               </div>
 
-              {/* FORMAT SELECTOR */}
               {!isProcessing && (
                 <div className="max-w-xs mx-auto text-left">
                   <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
@@ -170,7 +163,6 @@ export default function PdfToImage() {
                 </div>
               )}
 
-              {/* Progress Bar / Button */}
               {isProcessing ? (
                  <div className="max-w-md mx-auto space-y-3">
                     <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
@@ -183,15 +175,16 @@ export default function PdfToImage() {
               ) : (
                 <button 
                   onClick={convertToImages} 
-                  className="w-full max-w-xs mx-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 text-lg transition-all"
+                  disabled={!isLibraryLoaded}
+                  className="w-full max-w-xs mx-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Convert to {selectedFormat.split('/')[1].toUpperCase()}
+                  {!isLibraryLoaded ? <Loader2 className="animate-spin" /> : `Convert to ${selectedFormat.split('/')[1].toUpperCase()}`}
                 </button>
               )}
             </div>
           )}
 
-          {/* Step 3: Results Grid */}
+          {/* Results Grid */}
           {images.length > 0 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -203,7 +196,6 @@ export default function PdfToImage() {
                   </button>
                </div>
 
-               {/* Grid of Images */}
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {images.map((img, idx) => (
                    <div key={idx} className="group relative bg-slate-50 p-2 rounded-xl border border-slate-200 hover:shadow-xl transition-all">
@@ -228,7 +220,6 @@ export default function PdfToImage() {
         </div>
       </div>
 
-      {/* SEO Section */}
       <section className="max-w-3xl mx-auto px-6 mt-20 mb-20">
         <div className="bg-indigo-50 p-8 rounded-3xl border border-indigo-100">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Export PDF to JPG, PNG, or WebP</h2>
