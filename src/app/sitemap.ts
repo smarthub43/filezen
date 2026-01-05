@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
-  // 3. FINAL RETURN (With New MERGE Tool Added)
+  // 3. FINAL RETURN (With ALL Tools: Merge, Protect, Compress)
   return [
     {
       url: baseUrl,
@@ -46,9 +46,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily' as const,
       priority: 1,
     },
-    // NEW: Merge PDF Tool (High Value)
+    // Tool 1: Merge PDF
     {
       url: `${baseUrl}/merge-pdf`, 
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9, 
+    },
+    // Tool 2: Protect PDF (NEW ADDITION)
+    {
+      url: `${baseUrl}/protect-pdf`, 
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.9, 
@@ -80,7 +87,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/cookies`, // Added cookies for safety
+      url: `${baseUrl}/cookies`,
       lastModified: new Date(),
       changeFrequency: 'yearly' as const,
       priority: 0.3,
