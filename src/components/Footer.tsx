@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-// Added 'Lock' to the imports for the Protect icon
-import { ShieldCheck, Heart, FileDigit, Layers, Lock } from 'lucide-react';
+// Added 'Unlock' to the imports for the new tool
+import { ShieldCheck, Heart, FileDigit, Layers, Lock, Unlock } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -53,7 +53,7 @@ export default function Footer() {
               </Link>
             </li>
 
-            {/* 3. Protect PDF (Blue - NEW) */}
+            {/* 3. Protect PDF (Blue) */}
             <li>
               <Link href="/protect-pdf" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2">
                 <Lock size={12} />
@@ -61,7 +61,13 @@ export default function Footer() {
               </Link>
             </li>
 
-            <li className="text-slate-600 italic">PDF to JPG (Soon)</li>
+            {/* 4. Unlock PDF (Amber - NEW) */}
+            <li>
+              <Link href="/unlock-pdf" className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2">
+                <Unlock size={12} />
+                Unlock PDF
+              </Link>
+            </li>
           </ul>
         </div>
 

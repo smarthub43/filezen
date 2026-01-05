@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
-  // 3. FINAL RETURN (With ALL Tools: Merge, Protect, Compress)
+  // 3. FINAL RETURN (With ALL Tools: Merge, Protect, Unlock, Compress)
   return [
     {
       url: baseUrl,
@@ -53,9 +53,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.9, 
     },
-    // Tool 2: Protect PDF (NEW ADDITION)
+    // Tool 2: Protect PDF
     {
       url: `${baseUrl}/protect-pdf`, 
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9, 
+    },
+    // Tool 3: Unlock PDF (NEW ADDITION)
+    {
+      url: `${baseUrl}/unlock-pdf`, 
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.9, 
