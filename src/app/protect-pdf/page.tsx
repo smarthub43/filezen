@@ -30,30 +30,20 @@ export default function ProtectPdf() {
     try {
       const arrayBuffer = await file.arrayBuffer();
       
-      // 1. Load the PDF
       const pdfDoc = await PDFDocument.load(arrayBuffer);
 
-      // 2. Encrypt 
-      // FIX #1: We cast 'pdfDoc' to 'any' to force the encrypt method to work
-      (pdfDoc as any).encrypt({
+      // FIX 1: We use "as any" on pdfDoc to tell TypeScript "Just do it"
+      // FIX 2: We use raw numbers for permissions instead of importing 'Permission'
+      // 4 = Print, 8 = Modify, 16 = Copy, 32 = Annotate
+      await (pdfDoc as any).encrypt({
         userPassword: password,
         ownerPassword: password,
-        permissions: {
-          printing: 'highResolution',
-          modifying: false,
-          copying: false,
-          annotating: false,
-          fillingForms: false,
-          contentAccessibility: false,
-          documentAssembly: false,
-        },
+        permissions: [4, 8, 16, 32], 
       });
 
-      // 3. Save the file
       const pdfBytes = await pdfDoc.save();
       
-      // FIX #2: This fixes the red line in your screenshot (image_b8b636.png)
-      // We cast pdfBytes to 'any' inside the array
+      // FIX 3: Keep "as any" here to fix the Blob error
       const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       
@@ -70,7 +60,7 @@ export default function ProtectPdf() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
       
-      {/* Header - Blue Theme */}
+      {/* Header */}
       <div className="bg-white border-b border-slate-200 py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-slate-900">
