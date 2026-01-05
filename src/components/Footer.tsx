@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-// Added 'Unlock' to the imports for the new tool
-import { ShieldCheck, Heart, FileDigit, Layers, Lock, Unlock } from 'lucide-react';
+// Added 'Image as ImageIcon' for the PDF to JPG tool
+import { ShieldCheck, Heart, FileDigit, Layers, Lock, Unlock, Image as ImageIcon } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -61,11 +61,19 @@ export default function Footer() {
               </Link>
             </li>
 
-            {/* 4. Unlock PDF (Amber - NEW) */}
+            {/* 4. Unlock PDF (Amber) */}
             <li>
               <Link href="/unlock-pdf" className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2">
                 <Unlock size={12} />
                 Unlock PDF
+              </Link>
+            </li>
+
+            {/* 5. PDF to JPG (Indigo - NEW) */}
+            <li>
+              <Link href="/pdf-to-jpg" className="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-2">
+                <ImageIcon size={12} />
+                PDF to IMG
               </Link>
             </li>
           </ul>
