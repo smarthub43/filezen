@@ -6,20 +6,31 @@ import {
   Check, Settings, Loader2 
 } from 'lucide-react';
 
-// Import PDF library
-import * as pdfjsLib from 'pdfjs-dist';
+// NOTE: We do NOT import pdfjs-dist here anymore.
+// This prevents the "WorkerError" crash during build.
 
 export default function PdfToImage() {
   const [file, setFile] = useState<File | null>(null);
   const [images, setImages] = useState<{url: string, ext: string}[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  
-  // NEW: State for selected format
   const [selectedFormat, setSelectedFormat] = useState('image/jpeg');
 
+  // Setup the worker dynamically when the page mounts
   useEffect(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+    const initWorker = async () => {
+      try {
+        // Lazy load the library
+        const pdfJS = (await import('pdfjs-dist')) as any;
+        // Set worker
+        if (!pdfJS.GlobalWorkerOptions.workerSrc) {
+            pdfJS.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfJS.version}/build/pdf.worker.min.js`;
+        }
+      } catch (error) {
+        console.error("Worker init failed", error);
+      }
+    };
+    initWorker();
   }, []);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,8 +48,11 @@ export default function PdfToImage() {
     setImages([]);
 
     try {
+      // 1. Lazy load the library inside the action
+      const pdfJS = (await import('pdfjs-dist')) as any;
+      
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+      const pdf = await pdfJS.getDocument(arrayBuffer).promise;
       const totalPages = pdf.numPages;
       const newImages: {url: string, ext: string}[] = [];
 
@@ -54,17 +68,14 @@ export default function PdfToImage() {
 
         if (context) {
           const renderContext = {
-            canvasContext: context,
-            viewport: viewport
+             canvasContext: context,
+             viewport: viewport
           } as any;
-          
-          await page.render(renderContext).promise;
 
-          // DYNAMIC: Use the user's selected format
-          // Quality 0.9 is great for JPG/WebP, ignored for PNG
-          const imgUrl = canvas.toDataURL(selectedFormat, 0.9); 
+          await page.render(renderContext).promise;
           
-          // Determine extension for the filename
+          // DYNAMIC: Use the user's selected format
+          const imgUrl = canvas.toDataURL(selectedFormat, 0.9); 
           const ext = selectedFormat.split('/')[1].replace('jpeg', 'jpg');
           
           newImages.push({ url: imgUrl, ext: ext });
@@ -141,7 +152,7 @@ export default function PdfToImage() {
                  <button onClick={() => setFile(null)} className="text-slate-400 hover:text-red-500 ml-4">Change</button>
               </div>
 
-              {/* FORMAT SELECTOR - NEW */}
+              {/* FORMAT SELECTOR */}
               {!isProcessing && (
                 <div className="max-w-xs mx-auto text-left">
                   <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
@@ -197,7 +208,6 @@ export default function PdfToImage() {
                  {images.map((img, idx) => (
                    <div key={idx} className="group relative bg-slate-50 p-2 rounded-xl border border-slate-200 hover:shadow-xl transition-all">
                       <div className="aspect-[3/4] overflow-hidden rounded-lg bg-white mb-3 relative border border-slate-100">
-                         {/* We use a white background for PNG transparency */}
                          <img src={img.url} alt={`Page ${idx + 1}`} className="object-contain w-full h-full" />
                       </div>
                       <div className="flex items-center justify-between px-2 pb-1">
@@ -218,7 +228,7 @@ export default function PdfToImage() {
         </div>
       </div>
 
-      {/* SEO Section - Updated for Multi-Format */}
+      {/* SEO Section */}
       <section className="max-w-3xl mx-auto px-6 mt-20 mb-20">
         <div className="bg-indigo-50 p-8 rounded-3xl border border-indigo-100">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Export PDF to JPG, PNG, or WebP</h2>
