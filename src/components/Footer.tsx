@@ -53,22 +53,6 @@ export default function Footer() {
               </Link>
             </li>
 
-            {/* 3. Protect PDF (Blue) */}
-            <li>
-              <Link href="/protect-pdf" className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2">
-                <Lock size={12} />
-                Protect PDF
-              </Link>
-            </li>
-
-            {/* 4. Unlock PDF (Amber) */}
-            <li>
-              <Link href="/unlock-pdf" className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2">
-                <Unlock size={12} />
-                Unlock PDF
-              </Link>
-            </li>
-
             {/* 5. PDF to JPG (Indigo - NEW) */}
             <li>
               <Link href="/pdf-to-jpg" className="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-2">
